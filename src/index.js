@@ -49,59 +49,54 @@ function evaluateExpression(expr) {
   }
 
   let operators = expr.split(" ").filter(element => isOperator(element));
-  let numbersBrackets = expr
-    .split(" ")
-    .filter(element => isDigit(element) || element === "(" || element === ")");
+  let numbers = expr.split(" ").filter(element => isDigit(element));
 
   if (operators.length === 0) {
     return -1;
   }
 
-  let numberBracketCounter = 0;
-  let currentOperatorIndex = 0;
+  let numberCounter = 0;
+  let operatorCounter = 0;
 
-  while (numbersBrackets.length !== 1) {
-    let element = numbersBrackets[numberBracketCounter];
-    let previous = numbersBrackets[numberBracketCounter - 1];
-    if (isDigit(element) && isDigit(previous)) {
-      let operator = operators[currentOperatorIndex];
-      let num1 = previous;
-      let num2 = element;
-      let precedenceValue = precedence[operator];
+  while (numbers.length !== 1) {
+    let number = numbers[numberCounter];
+    let previousNumber = numbers[numberCounter - 1];
+    if (isDigit(number) && isDigit(previousNumber)) {
+      let operator = operators[operatorCounter];
 
       if (operators.includes("*") || operators.includes("/")) {
-        if (precedenceValue === 2) {
-          numbersBrackets.splice(
-            numberBracketCounter - 1,
+        if (precedence[operator] === 2) {
+          numbers.splice(
+            numberCounter - 1,
             2,
-            evaluatePair(num1, num2, operator)
+            evaluatePair(previousNumber, number, operator)
           );
-          operators.splice(currentOperatorIndex, 1);
-          numberBracketCounter = -1;
-          currentOperatorIndex = 0;
+          operators.splice(operatorCounter, 1);
+          numberCounter = -1;
+          operatorCounter = 0;
         } else {
-          currentOperatorIndex++;
+          operatorCounter++;
         }
       } else {
-        if (precedenceValue === 1) {
-          numbersBrackets.splice(
-            numberBracketCounter - 1,
+        if (precedence[operator] === 1) {
+          numbers.splice(
+            numberCounter - 1,
             2,
-            evaluatePair(num1, num2, operator)
+            evaluatePair(previousNumber, number, operator)
           );
-          operators.splice(currentOperatorIndex, 1);
+          operators.splice(operatorCounter, 1);
 
-          numberBracketCounter = -1;
-          currentOperatorIndex = 0;
+          numberCounter = -1;
+          operatorCounter = 0;
         } else {
-          currentOperatorIndex++;
+          operatorCounter++;
         }
       }
     }
 
-    numberBracketCounter++;
+    numberCounter++;
   }
-  return numbersBrackets.pop();
+  return numbers.pop();
 }
 
 function isOperator(val) {
